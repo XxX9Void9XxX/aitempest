@@ -1,5 +1,3 @@
-# TempestAI Professional Single-File AI App
-
 ````html
 <!DOCTYPE html>
 <html lang="en">
@@ -345,7 +343,7 @@ textarea:focus {
       </div>
 
       <div class="translate">
-        Google Translate • English ⇄ Italian
+        TempestAI v2
       </div>
     </div>
 
@@ -507,11 +505,7 @@ function formatAIMessage(text) {
       <div class="code-block">
         <div class="code-top">
           <span>${lang || 'code'}</span>
-
-          <button
-            class="copy-btn"
-            onclick="copyCode(this)"
-          >
+          <button class="copy-btn" data-code="${escaped.replace(/"/g, '&quot;')}">
             Copy
           </button>
         </div>
@@ -521,24 +515,31 @@ function formatAIMessage(text) {
     `;
   });
 
-  html = html.replace(/\n/g, '<br>');
+  html = html.replace(/
+/g, '<br>');
+
+  html = html.replace(/&lt;/g, '<');
+  html = html.replace(/&gt;/g, '>');
 
   return html;
 }
 
-function copyCode(button) {
-  const code = button
-    .parentElement
-    .nextElementSibling
-    .innerText;
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('copy-btn')) {
+    const code = e.target
+      .closest('.code-block')
+      .querySelector('code')
+      .innerText;
 
-  navigator.clipboard.writeText(code);
+    navigator.clipboard.writeText(code);
 
-  button.innerText = 'Copied';
+    e.target.innerText = 'Copied';
 
-  setTimeout(() => {
-    button.innerText = 'Copy';
-  }, 1200);
+    setTimeout(() => {
+      e.target.innerText = 'Copy';
+    }, 1200);
+  }
+});, 1200);
 }
 
 async function sendMessage() {
