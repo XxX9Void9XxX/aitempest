@@ -1,14 +1,9 @@
-````html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TempestAI</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 * {
@@ -17,588 +12,311 @@
   box-sizing: border-box;
 }
 
-:root {
-  --bg: #09090b;
-  --sidebar: #0f0f13;
-  --panel: #111115;
-  --panel-2: #17171c;
-  --border: #24242b;
-  --text: #ffffff;
-  --muted: #9b9ba1;
-  --purple: #7a3cff;
-  --blue: #1f6fff;
-}
-
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: Inter, sans-serif;
+  background: #0b0b0f;
+  color: white;
+  font-family: Arial, sans-serif;
   height: 100vh;
   overflow: hidden;
 }
 
 .app {
   display: flex;
-  width: 100%;
   height: 100vh;
 }
 
+/* SIDEBAR */
 .sidebar {
-  width: 300px;
-  background: var(--sidebar);
-  border-right: 1px solid var(--border);
+  width: 260px;
+  background: #111;
+  border-right: 1px solid #222;
   display: flex;
   flex-direction: column;
 }
 
 .logo {
-  padding: 25px;
-  font-size: 26px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--purple), var(--blue));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  padding: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #7a3cff;
 }
 
-.new-chat {
-  margin: 0 20px 20px;
-  padding: 14px;
+.newchat {
+  margin: 10px;
+  padding: 10px;
   border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--purple), var(--blue));
+  border-radius: 8px;
+  background: #7a3cff;
   color: white;
   cursor: pointer;
-  font-weight: 600;
-  transition: 0.2s;
 }
 
-.new-chat:hover {
-  transform: scale(1.02);
-}
-
-.chats {
+.chatlist {
   flex: 1;
   overflow-y: auto;
-  padding: 0 15px 15px;
 }
 
-.chat-item {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  padding: 14px;
-  border-radius: 14px;
-  margin-bottom: 10px;
+.chatitem {
+  padding: 10px;
+  margin: 5px 10px;
+  background: #1a1a1a;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-.chat-item:hover {
-  background: var(--panel-2);
+.chatitem.active {
+  background: #2a2a2a;
 }
 
-.chat-item.active {
-  border-color: var(--purple);
-  box-shadow: 0 0 15px rgba(122,60,255,0.25);
-}
-
+/* MAIN */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 
-.topbar {
-  height: 70px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 25px;
-  background: rgba(0,0,0,0.25);
-  backdrop-filter: blur(10px);
-}
-
-.translate {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  padding: 10px 14px;
-  border-radius: 12px;
-  color: var(--muted);
-  font-size: 14px;
-}
-
+/* CHAT */
 .chat {
   flex: 1;
+  padding: 20px;
   overflow-y: auto;
-  padding: 30px;
 }
 
-.message {
-  margin-bottom: 20px;
-  animation: fade 0.2s ease;
-}
-
-.user-wrap {
+.msg {
+  margin: 10px 0;
   display: flex;
+}
+
+.user {
   justify-content: flex-end;
 }
 
-.ai-wrap {
-  display: flex;
+.ai {
   justify-content: flex-start;
 }
 
 .bubble {
-  max-width: 900px;
-  padding: 18px;
-  border-radius: 18px;
-  line-height: 1.6;
+  max-width: 70%;
+  padding: 12px;
+  border-radius: 10px;
   white-space: pre-wrap;
-  word-wrap: break-word;
 }
 
-.user {
-  background: linear-gradient(135deg, var(--blue), var(--purple));
+.user .bubble {
+  background: #1f6fff;
 }
 
-.ai {
-  background: var(--panel);
-  border: 1px solid var(--border);
+.ai .bubble {
+  background: #1c1c1c;
 }
 
-.code-block {
-  margin-top: 15px;
-  border: 1px solid var(--border);
-  background: #0a0a0d;
-  border-radius: 16px;
+/* CODE BLOCK */
+.code {
+  background: #0a0a0a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  margin-top: 8px;
   overflow: hidden;
 }
 
-.code-top {
+.codetop {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  background: #111118;
-}
-
-.code-top span {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.copy-btn {
-  border: none;
-  background: linear-gradient(135deg, var(--purple), var(--blue));
-  color: white;
-  padding: 8px 12px;
-  border-radius: 10px;
-  cursor: pointer;
+  padding: 6px 10px;
+  background: #151515;
   font-size: 12px;
 }
 
-pre {
-  overflow-x: auto;
-  padding: 18px;
+.copy {
+  cursor: pointer;
+  color: #7a3cff;
 }
 
-code {
-  font-family: Consolas, monospace;
-  color: #d7d7dc;
-}
-
-.input-area {
-  padding: 20px;
-  border-top: 1px solid var(--border);
-  background: var(--sidebar);
-}
-
-.input-box {
+/* INPUT */
+.inputbar {
   display: flex;
-  gap: 12px;
-  align-items: flex-end;
+  padding: 10px;
+  border-top: 1px solid #222;
 }
 
 textarea {
   flex: 1;
   resize: none;
-  border: 1px solid var(--border);
-  background: var(--panel);
-  color: white;
-  padding: 16px;
-  border-radius: 18px;
-  min-height: 60px;
-  max-height: 200px;
-  font-size: 15px;
-  outline: none;
-}
-
-textarea:focus {
-  border-color: var(--purple);
-}
-
-.send {
-  width: 60px;
-  height: 60px;
-  border-radius: 18px;
+  padding: 10px;
+  border-radius: 8px;
   border: none;
-  background: linear-gradient(135deg, var(--purple), var(--blue));
+  background: #111;
   color: white;
-  font-size: 20px;
+}
+
+button.send {
+  margin-left: 10px;
+  width: 80px;
+  background: #7a3cff;
+  border: none;
+  border-radius: 8px;
+  color: white;
   cursor: pointer;
-}
-
-.typing {
-  display: flex;
-  gap: 6px;
-}
-
-.typing span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--muted);
-  animation: bounce 1s infinite;
-}
-
-.typing span:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.typing span:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-@keyframes bounce {
-  0%,80%,100% {
-    transform: scale(0.7);
-    opacity: 0.5;
-  }
-
-  40% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes fade {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #2a2a31;
-  border-radius: 20px;
-}
-
-@media (max-width: 800px) {
-  .sidebar {
-    width: 90px;
-  }
-
-  .logo {
-    font-size: 18px;
-    padding: 20px 10px;
-  }
-
-  .chat-item {
-    font-size: 12px;
-    padding: 10px;
-  }
 }
 </style>
 </head>
+
 <body>
 
 <div class="app">
 
   <div class="sidebar">
     <div class="logo">TempestAI</div>
-
-    <button class="new-chat" onclick="newChat()">
-      + New Chat
-    </button>
-
-    <div class="chats" id="chats"></div>
+    <button class="newchat" onclick="newChat()">+ New Chat</button>
+    <div class="chatlist" id="chatlist"></div>
   </div>
 
   <div class="main">
 
-    <div class="topbar">
-      <div>
-        TempestAI Assistant
-      </div>
-
-      <div class="translate">
-        TempestAI v2
-      </div>
-    </div>
-
     <div class="chat" id="chat"></div>
 
-    <div class="input-area">
-      <div class="input-box">
-
-        <textarea
-          id="message"
-          placeholder="Message TempestAI..."
-        ></textarea>
-
-        <button class="send" onclick="sendMessage()">
-          ➜
-        </button>
-
-      </div>
+    <div class="inputbar">
+      <textarea id="input" rows="2"></textarea>
+      <button class="send" onclick="send()">Send</button>
     </div>
 
   </div>
+
 </div>
 
 <script>
-const chatDiv = document.getElementById('chat');
-const chatsDiv = document.getElementById('chats');
-const textarea = document.getElementById('message');
+let chats = JSON.parse(localStorage.getItem("chats") || "[]");
+let current = localStorage.getItem("current") || null;
 
-let chats = JSON.parse(localStorage.getItem('tempest_chats')) || [];
-let currentChat = localStorage.getItem('tempest_current') || null;
-
-if (chats.length === 0) {
-  createChat('New Chat');
+if (!chats.length) {
+  createChat();
 }
 
 renderChats();
-loadMessages();
+loadChat();
 
-textarea.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-});
-
-function createChat(title) {
+function createChat() {
   const id = Date.now().toString();
-
-  chats.unshift({
-    id,
-    title,
-    messages: []
-  });
-
-  currentChat = id;
-
-  saveChats();
+  chats.unshift({ id, messages: [], name: "New Chat" });
+  current = id;
+  save();
 }
 
 function newChat() {
-  createChat('New Chat');
+  createChat();
   renderChats();
-  loadMessages();
+  loadChat();
 }
 
-function saveChats() {
-  localStorage.setItem('tempest_chats', JSON.stringify(chats));
-  localStorage.setItem('tempest_current', currentChat);
+function save() {
+  localStorage.setItem("chats", JSON.stringify(chats));
+  localStorage.setItem("current", current);
+}
+
+function getChat() {
+  return chats.find(c => c.id === current);
 }
 
 function renderChats() {
-  chatsDiv.innerHTML = '';
+  const list = document.getElementById("chatlist");
+  list.innerHTML = "";
 
-  chats.forEach(chat => {
-    const div = document.createElement('div');
-
-    div.className = 'chat-item';
-
-    if (chat.id === currentChat) {
-      div.classList.add('active');
-    }
-
-    div.textContent = chat.title;
-
+  chats.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "chatitem" + (c.id === current ? " active" : "");
+    div.textContent = c.name;
     div.onclick = () => {
-      currentChat = chat.id;
-      saveChats();
+      current = c.id;
+      save();
       renderChats();
-      loadMessages();
+      loadChat();
     };
-
-    chatsDiv.appendChild(div);
+    list.appendChild(div);
   });
 }
 
-function getCurrentChat() {
-  return chats.find(c => c.id === currentChat);
+function loadChat() {
+  const chat = document.getElementById("chat");
+  chat.innerHTML = "";
+
+  const c = getChat();
+  if (!c) return;
+
+  c.messages.forEach(m => addMsg(m.role, m.text));
 }
 
-function loadMessages() {
-  chatDiv.innerHTML = '';
+function addMsg(role, text) {
+  const chat = document.getElementById("chat");
 
-  const chat = getCurrentChat();
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + role;
 
-  if (!chat) return;
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
 
-  chat.messages.forEach(msg => {
-    renderMessage(msg.text, msg.role);
-  });
-
-  chatDiv.scrollTop = chatDiv.scrollHeight;
-}
-
-function saveMessage(text, role) {
-  const chat = getCurrentChat();
-
-  chat.messages.push({ text, role });
-
-  if (chat.title === 'New Chat' && role === 'user') {
-    chat.title = text.slice(0, 24);
-  }
-
-  saveChats();
-  renderChats();
-}
-
-function renderMessage(text, role) {
-  const wrap = document.createElement('div');
-  wrap.className = role === 'user' ? 'user-wrap message' : 'ai-wrap message';
-
-  const bubble = document.createElement('div');
-  bubble.className = `bubble ${role}`;
-
-  if (role === 'ai' && text.includes('```')) {
-    bubble.innerHTML = formatAIMessage(text);
+  if (role === "ai") {
+    bubble.innerHTML = format(text);
   } else {
     bubble.textContent = text;
   }
 
   wrap.appendChild(bubble);
-  chatDiv.appendChild(wrap);
-
-  chatDiv.scrollTop = chatDiv.scrollHeight;
-
-  return wrap;
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
 }
 
-function formatAIMessage(text) {
-  const regex = /```(.*?)\n([\s\S]*?)```/g;
+function format(text) {
+  return text.replace(/```(\\w+)?\\n([\\s\\S]*?)```/g,
+    (m, lang, code) => {
+      const safe = code
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 
-  let html = text;
-
-  html = html.replace(regex, (match, lang, code) => {
-    const escaped = code
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-
-    return `
-      <div class="code-block">
-        <div class="code-top">
-          <span>${lang || 'code'}</span>
-          <button class="copy-btn" data-code="${escaped.replace(/"/g, '&quot;')}">
-            Copy
-          </button>
-        </div>
-
-        <pre><code>${escaped}</code></pre>
-      </div>
-    `;
-  });
-
-  html = html.replace(/
-/g, '<br>');
-
-  html = html.replace(/&lt;/g, '<');
-  html = html.replace(/&gt;/g, '>');
-
-  return html;
+      return `
+<div class="code">
+  <div class="codetop">
+    <span>${lang || "code"}</span>
+    <span class="copy" onclick="copy(this)">Copy</span>
+  </div>
+  <pre><code>${safe}</code></pre>
+</div>`;
+    });
 }
 
-document.addEventListener('click', e => {
-  if (e.target.classList.contains('copy-btn')) {
-    const code = e.target
-      .closest('.code-block')
-      .querySelector('code')
-      .innerText;
-
-    navigator.clipboard.writeText(code);
-
-    e.target.innerText = 'Copied';
-
-    setTimeout(() => {
-      e.target.innerText = 'Copy';
-    }, 1200);
-  }
-});, 1200);
+function copy(el) {
+  const code = el.parentElement.nextElementSibling.innerText;
+  navigator.clipboard.writeText(code);
+  el.textContent = "Copied";
+  setTimeout(() => el.textContent = "Copy", 1000);
 }
 
-async function sendMessage() {
-  const text = textarea.value.trim();
-
+async function send() {
+  const input = document.getElementById("input");
+  const text = input.value.trim();
   if (!text) return;
 
-  renderMessage(text, 'user');
-  saveMessage(text, 'user');
+  input.value = "";
 
-  textarea.value = '';
+  addMsg("user", text);
 
-  const loading = document.createElement('div');
-  loading.className = 'ai-wrap message';
+  const c = getChat();
+  c.messages.push({ role: "user", text });
 
-  loading.innerHTML = `
-    <div class="bubble ai">
-      <div class="typing">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-  `;
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text })
+  });
 
-  chatDiv.appendChild(loading);
-  chatDiv.scrollTop = chatDiv.scrollHeight;
+  const data = await res.json();
 
-  try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: text
-      })
-    });
+  addMsg("ai", data.reply);
 
-    const data = await response.json();
+  c.messages.push({ role: "ai", text: data.reply });
 
-    loading.remove();
-
-    renderMessage(data.reply, 'ai');
-    saveMessage(data.reply, 'ai');
-
-  } catch (err) {
-    loading.remove();
-
-    renderMessage(
-      'Error connecting to server.',
-      'ai'
-    );
-  }
+  save();
 }
 </script>
 
 </body>
 </html>
-````
-
-Put this entire file into `public/index.html`.
