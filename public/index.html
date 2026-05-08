@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TempestAI</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial;
-  background: #0b0b0f;
+  background: #0b0b10;
   color: white;
+  font-family: Arial;
   height: 100vh;
   overflow: hidden;
 }
@@ -20,41 +20,62 @@ body {
   height: 100vh;
 }
 
-/* sidebar */
+/* VERY THIN SIDEBAR */
 .sidebar {
-  width: 240px;
-  background: #111;
+  width: 60px;
+  background: #0f0f14;
   border-right: 1px solid #222;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .logo {
-  padding: 15px;
-  font-weight: bold;
+  font-size: 10px;
+  padding: 10px;
   color: #7a3cff;
 }
 
 .chatlist {
   flex: 1;
   overflow-y: auto;
+  width: 100%;
 }
 
 .chatitem {
-  padding: 10px;
-  margin: 5px;
+  width: 90%;
+  margin: 5px auto;
+  font-size: 10px;
+  padding: 6px;
   background: #1a1a1a;
   border-radius: 6px;
   cursor: pointer;
+  text-align: center;
 }
 
-/* main */
+/* MAIN */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
+/* TOP BAR */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #222;
+}
+
+select {
+  background: #111;
+  color: white;
+  border: 1px solid #333;
+  padding: 5px;
+}
+
+/* CHAT */
 .chat {
   flex: 1;
   overflow-y: auto;
@@ -79,34 +100,7 @@ body {
 .user .bubble { background: #1f6fff; }
 .ai .bubble { background: #1c1c1c; }
 
-/* code block */
-.codebox {
-  margin-top: 8px;
-  border: 1px solid #333;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.codetop {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 10px;
-  background: #151515;
-  font-size: 12px;
-}
-
-.copybtn {
-  cursor: pointer;
-  color: #7a3cff;
-}
-
-pre {
-  margin: 0;
-  padding: 10px;
-  overflow-x: auto;
-}
-
-/* input */
+/* INPUT */
 .input {
   display: flex;
   padding: 10px;
@@ -123,7 +117,7 @@ textarea {
 }
 
 button {
-  width: 80px;
+  width: 90px;
   margin-left: 10px;
   background: #7a3cff;
   border: none;
@@ -138,17 +132,30 @@ button {
 <div class="app">
 
   <div class="sidebar">
-    <div class="logo">TempestAI</div>
+    <div class="logo">AI</div>
     <div class="chatlist" id="chatlist"></div>
   </div>
 
   <div class="main">
+
+    <div class="topbar">
+      <div>TempestAI</div>
+
+      <!-- MODEL SELECTOR -->
+      <select id="model">
+        <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+        <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
+        <option value="mixtral-8x7b">Mixtral</option>
+      </select>
+    </div>
+
     <div class="chat" id="chat"></div>
 
     <div class="input">
       <textarea id="input"></textarea>
       <button onclick="send()">Send</button>
     </div>
+
   </div>
 
 </div>
@@ -156,6 +163,7 @@ button {
 <script>
 let chatDiv = document.getElementById("chat");
 let input = document.getElementById("input");
+let model = document.getElementById("model");
 
 function addMessage(role, text) {
   const wrap = document.createElement("div");
@@ -163,71 +171,17 @@ function addMessage(role, text) {
 
   const bubble = document.createElement("div");
   bubble.className = "bubble";
-
-  if (role === "ai") {
-    bubble.appendChild(renderAI(text));
-  } else {
-    bubble.textContent = text;
-  }
+  bubble.textContent = text;
 
   wrap.appendChild(bubble);
   chatDiv.appendChild(wrap);
 
   chatDiv.scrollTop = chatDiv.scrollHeight;
+
+  return bubble;
 }
 
-function renderAI(text) {
-  const container = document.createElement("div");
-
-  const parts = text.split("```");
-
-  parts.forEach((part, i) => {
-    if (i % 2 === 0) {
-      const span = document.createElement("div");
-      span.textContent = part;
-      container.appendChild(span);
-    } else {
-      const lines = part.split("\n");
-      const lang = lines[0];
-      const code = lines.slice(1).join("\n");
-
-      const box = document.createElement("div");
-      box.className = "codebox";
-
-      const top = document.createElement("div");
-      top.className = "codetop";
-
-      const label = document.createElement("span");
-      label.textContent = lang || "code";
-
-      const btn = document.createElement("span");
-      btn.className = "copybtn";
-      btn.textContent = "Copy";
-
-      btn.onclick = () => {
-        navigator.clipboard.writeText(code);
-        btn.textContent = "Copied";
-        setTimeout(() => btn.textContent = "Copy", 1000);
-      };
-
-      const pre = document.createElement("pre");
-      const c = document.createElement("code");
-      c.textContent = code;
-
-      pre.appendChild(c);
-      top.appendChild(label);
-      top.appendChild(btn);
-
-      box.appendChild(top);
-      box.appendChild(pre);
-
-      container.appendChild(box);
-    }
-  });
-
-  return container;
-}
-
+/* REAL STREAMING */
 async function send() {
   const text = input.value.trim();
   if (!text) return;
@@ -236,15 +190,31 @@ async function send() {
 
   addMessage("user", text);
 
+  const aiBubble = addMessage("ai", "");
+
   const res = await fetch("/api/chat", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: text })
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      message: text,
+      model: model.value
+    })
   });
 
-  const data = await res.json();
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
 
-  addMessage("ai", data.reply);
+  let full = "";
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value);
+    full += chunk;
+
+    aiBubble.textContent = full;
+  }
 }
 </script>
 
