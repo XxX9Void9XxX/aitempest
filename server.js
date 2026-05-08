@@ -11,96 +11,87 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(
-  express.static(path.join(__dirname, "public"))
-);
-
+/**
+ * STREAMING CHAT ROUTE
+ */
 app.post("/api/chat", async (req, res) => {
   try {
-    const message = req.body.message;
+    const { message, model } = req.body;
 
     if (!message) {
-      return res.status(400).json({
-        reply: "No message provided."
-      });
+      return res.status(400).send("No message provided");
     }
 
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`
         },
-
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-
+          model: model || "llama-3.3-70b-versatile",
+          stream: true,
           messages: [
             {
               role: "system",
-
-              content: `
-You are TempestAI.
-
-You are a futuristic AI assistant.
-
-Keep responses helpful and concise.
-`
+              content:
+                "You are TempestAI, a helpful AI assistant."
             },
-
             {
               role: "user",
               content: message
             }
-          ],
-
-          temperature: 0.7,
-          max_tokens: 1024
+          ]
         })
       }
     );
 
-    const data = await response.json();
-
-    console.log(data);
-
-    if (!response.ok) {
-      return res.status(500).json({
-        reply:
-          data.error?.message ||
-          "Groq API error."
-      });
+    if (!response.ok || !response.body) {
+      const errText = await response.text();
+      console.error("Groq error:", errText);
+      return res.status(500).send("Groq API error");
     }
 
-    res.json({
-      reply:
-        data.choices?.[0]?.message?.content ||
-        "No response."
-    });
+    res.setHeader("Content-Type", "text/plain");
+    res.setHeader("Transfer-Encoding", "chunked");
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      res.write(chunk);
+    }
+
+    res.end();
 
   } catch (err) {
-    console.error("SERVER ERROR:", err);
-
-    res.status(500).json({
-      reply: "Internal server error."
-    });
+    console.error("Server error:", err);
+    res.status(500).send("Internal server error");
   }
 });
 
+/**
+ * FRONTEND ROUTE
+ */
 app.get("*", (req, res) => {
   res.sendFile(
     path.join(__dirname, "public", "index.html")
   );
 });
 
+/**
+ * START SERVER
+ */
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(
-    `TempestAI server running on port ${PORT}`
-  );
+  console.log(`TempestAI running on port ${PORT}`);
 });
