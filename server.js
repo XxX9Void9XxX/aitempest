@@ -1,5 +1,4 @@
 import express from "express";
-import fetch from "node-fetch";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -16,7 +15,13 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.post("/api/chat", async (req, res) => {
   try {
-    const userMessage = req.body.message;
+    const message = req.body.message;
+
+    if (!message) {
+      return res.status(400).json({
+        reply: "No message provided."
+      });
+    }
 
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
@@ -32,11 +37,11 @@ app.post("/api/chat", async (req, res) => {
             {
               role: "system",
               content:
-                "You are a custom AI assistant named TempestAI."
+                "You are TempestAI, a futuristic AI assistant."
             },
             {
               role: "user",
-              content: userMessage
+              content: message
             }
           ]
         })
@@ -45,14 +50,27 @@ app.post("/api/chat", async (req, res) => {
 
     const data = await response.json();
 
+    console.log(data);
+
+    if (!response.ok) {
+      return res.status(500).json({
+        reply:
+          data.error?.message ||
+          "Groq API error."
+      });
+    }
+
     res.json({
-      reply: data.choices[0].message.content
+      reply:
+        data.choices?.[0]?.message?.content ||
+        "No response from AI."
     });
+
   } catch (err) {
-    console.log(err);
+    console.error("SERVER ERROR:", err);
 
     res.status(500).json({
-      reply: "Server error."
+      reply: "Internal server error."
     });
   }
 });
@@ -64,5 +82,5 @@ app.get("*", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+  console.log("Server running on port " + PORT);
 });
