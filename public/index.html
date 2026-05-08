@@ -8,9 +8,9 @@
 <style>
 body {
   margin: 0;
+  font-family: Arial;
   background: #0b0b10;
   color: white;
-  font-family: Arial;
   height: 100vh;
   overflow: hidden;
 }
@@ -20,7 +20,7 @@ body {
   height: 100vh;
 }
 
-/* VERY THIN SIDEBAR */
+/* THIN SIDEBAR */
 .sidebar {
   width: 60px;
   background: #0f0f14;
@@ -38,14 +38,13 @@ body {
 
 .chatlist {
   flex: 1;
-  overflow-y: auto;
   width: 100%;
+  overflow-y: auto;
 }
 
 .chatitem {
-  width: 90%;
-  margin: 5px auto;
   font-size: 10px;
+  margin: 5px;
   padding: 6px;
   background: #1a1a1a;
   border-radius: 6px;
@@ -60,7 +59,6 @@ body {
   flex-direction: column;
 }
 
-/* TOP BAR */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -72,7 +70,6 @@ select {
   background: #111;
   color: white;
   border: 1px solid #333;
-  padding: 5px;
 }
 
 /* CHAT */
@@ -117,7 +114,7 @@ textarea {
 }
 
 button {
-  width: 90px;
+  width: 80px;
   margin-left: 10px;
   background: #7a3cff;
   border: none;
@@ -141,12 +138,13 @@ button {
     <div class="topbar">
       <div>TempestAI</div>
 
-      <!-- MODEL SELECTOR -->
       <select id="model">
-        <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
-        <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
+        <option value="llama-3.3-70b-versatile">Llama 3.3</option>
+        <option value="llama-3.1-8b-instant">Llama 3.1</option>
         <option value="mixtral-8x7b">Mixtral</option>
       </select>
+
+      <button onclick="stopAI()">Stop</button>
     </div>
 
     <div class="chat" id="chat"></div>
@@ -163,9 +161,16 @@ button {
 <script>
 let chatDiv = document.getElementById("chat");
 let input = document.getElementById("input");
-let model = document.getElementById("model");
 
-function addMessage(role, text) {
+let chatId = localStorage.getItem("chatId");
+if (!chatId) {
+  chatId = crypto.randomUUID();
+  localStorage.setItem("chatId", chatId);
+}
+
+let controller = null;
+
+function add(role, text) {
   const wrap = document.createElement("div");
   wrap.className = "msg " + role;
 
@@ -181,23 +186,26 @@ function addMessage(role, text) {
   return bubble;
 }
 
-/* REAL STREAMING */
 async function send() {
   const text = input.value.trim();
   if (!text) return;
 
   input.value = "";
 
-  addMessage("user", text);
+  add("user", text);
 
-  const aiBubble = addMessage("ai", "");
+  const ai = add("ai", "");
+
+  controller = new AbortController();
 
   const res = await fetch("/api/chat", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    signal: controller.signal,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       message: text,
-      model: model.value
+      model: document.getElementById("model").value,
+      chatId
     })
   });
 
@@ -206,15 +214,19 @@ async function send() {
 
   let full = "";
 
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
 
-    const chunk = decoder.decode(value);
-    full += chunk;
+      full += decoder.decode(value);
+      ai.textContent = full;
+    }
+  } catch (e) {}
+}
 
-    aiBubble.textContent = full;
-  }
+function stopAI() {
+  if (controller) controller.abort();
 }
 </script>
 
