@@ -11,7 +11,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+
+app.use(
+  express.static(path.join(__dirname, "public"))
+);
 
 app.post("/api/chat", async (req, res) => {
   try {
@@ -27,23 +30,36 @@ app.post("/api/chat", async (req, res) => {
       "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`
         },
+
         body: JSON.stringify({
-          model: "llama3-70b-8192",
+          model: "llama-3.3-70b-versatile",
+
           messages: [
             {
               role: "system",
-              content:
-                "You are TempestAI, a futuristic AI assistant."
+
+              content: `
+You are TempestAI.
+
+You are a futuristic AI assistant.
+
+Keep responses helpful and concise.
+`
             },
+
             {
               role: "user",
               content: message
             }
-          ]
+          ],
+
+          temperature: 0.7,
+          max_tokens: 1024
         })
       }
     );
@@ -63,7 +79,7 @@ app.post("/api/chat", async (req, res) => {
     res.json({
       reply:
         data.choices?.[0]?.message?.content ||
-        "No response from AI."
+        "No response."
     });
 
   } catch (err) {
@@ -76,11 +92,15 @@ app.post("/api/chat", async (req, res) => {
 });
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/index.html"));
+  res.sendFile(
+    path.join(__dirname, "public", "index.html")
+  );
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+  console.log(
+    `TempestAI server running on port ${PORT}`
+  );
 });
