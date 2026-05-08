@@ -6,16 +6,11 @@
 <title>TempestAI</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
+  margin: 0;
+  font-family: Arial;
   background: #0b0b0f;
   color: white;
-  font-family: Arial, sans-serif;
   height: 100vh;
   overflow: hidden;
 }
@@ -25,9 +20,9 @@ body {
   height: 100vh;
 }
 
-/* SIDEBAR */
+/* sidebar */
 .sidebar {
-  width: 260px;
+  width: 240px;
   background: #111;
   border-right: 1px solid #222;
   display: flex;
@@ -35,20 +30,9 @@ body {
 }
 
 .logo {
-  padding: 20px;
-  font-size: 20px;
+  padding: 15px;
   font-weight: bold;
   color: #7a3cff;
-}
-
-.newchat {
-  margin: 10px;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  background: #7a3cff;
-  color: white;
-  cursor: pointer;
 }
 
 .chatlist {
@@ -58,28 +42,23 @@ body {
 
 .chatitem {
   padding: 10px;
-  margin: 5px 10px;
+  margin: 5px;
   background: #1a1a1a;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.chatitem.active {
-  background: #2a2a2a;
-}
-
-/* MAIN */
+/* main */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-/* CHAT */
 .chat {
   flex: 1;
-  padding: 20px;
   overflow-y: auto;
+  padding: 15px;
 }
 
 .msg {
@@ -87,35 +66,24 @@ body {
   display: flex;
 }
 
-.user {
-  justify-content: flex-end;
-}
-
-.ai {
-  justify-content: flex-start;
-}
+.user { justify-content: flex-end; }
+.ai { justify-content: flex-start; }
 
 .bubble {
   max-width: 70%;
-  padding: 12px;
+  padding: 10px;
   border-radius: 10px;
   white-space: pre-wrap;
 }
 
-.user .bubble {
-  background: #1f6fff;
-}
+.user .bubble { background: #1f6fff; }
+.ai .bubble { background: #1c1c1c; }
 
-.ai .bubble {
-  background: #1c1c1c;
-}
-
-/* CODE BLOCK */
-.code {
-  background: #0a0a0a;
+/* code block */
+.codebox {
+  margin-top: 8px;
   border: 1px solid #333;
   border-radius: 10px;
-  margin-top: 8px;
   overflow: hidden;
 }
 
@@ -127,13 +95,19 @@ body {
   font-size: 12px;
 }
 
-.copy {
+.copybtn {
   cursor: pointer;
   color: #7a3cff;
 }
 
-/* INPUT */
-.inputbar {
+pre {
+  margin: 0;
+  padding: 10px;
+  overflow-x: auto;
+}
+
+/* input */
+.input {
   display: flex;
   padding: 10px;
   border-top: 1px solid #222;
@@ -141,20 +115,18 @@ body {
 
 textarea {
   flex: 1;
-  resize: none;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
   background: #111;
+  border: none;
   color: white;
+  padding: 10px;
+  resize: none;
 }
 
-button.send {
-  margin-left: 10px;
+button {
   width: 80px;
+  margin-left: 10px;
   background: #7a3cff;
   border: none;
-  border-radius: 8px;
   color: white;
   cursor: pointer;
 }
@@ -167,87 +139,25 @@ button.send {
 
   <div class="sidebar">
     <div class="logo">TempestAI</div>
-    <button class="newchat" onclick="newChat()">+ New Chat</button>
     <div class="chatlist" id="chatlist"></div>
   </div>
 
   <div class="main">
-
     <div class="chat" id="chat"></div>
 
-    <div class="inputbar">
-      <textarea id="input" rows="2"></textarea>
-      <button class="send" onclick="send()">Send</button>
+    <div class="input">
+      <textarea id="input"></textarea>
+      <button onclick="send()">Send</button>
     </div>
-
   </div>
 
 </div>
 
 <script>
-let chats = JSON.parse(localStorage.getItem("chats") || "[]");
-let current = localStorage.getItem("current") || null;
+let chatDiv = document.getElementById("chat");
+let input = document.getElementById("input");
 
-if (!chats.length) {
-  createChat();
-}
-
-renderChats();
-loadChat();
-
-function createChat() {
-  const id = Date.now().toString();
-  chats.unshift({ id, messages: [], name: "New Chat" });
-  current = id;
-  save();
-}
-
-function newChat() {
-  createChat();
-  renderChats();
-  loadChat();
-}
-
-function save() {
-  localStorage.setItem("chats", JSON.stringify(chats));
-  localStorage.setItem("current", current);
-}
-
-function getChat() {
-  return chats.find(c => c.id === current);
-}
-
-function renderChats() {
-  const list = document.getElementById("chatlist");
-  list.innerHTML = "";
-
-  chats.forEach(c => {
-    const div = document.createElement("div");
-    div.className = "chatitem" + (c.id === current ? " active" : "");
-    div.textContent = c.name;
-    div.onclick = () => {
-      current = c.id;
-      save();
-      renderChats();
-      loadChat();
-    };
-    list.appendChild(div);
-  });
-}
-
-function loadChat() {
-  const chat = document.getElementById("chat");
-  chat.innerHTML = "";
-
-  const c = getChat();
-  if (!c) return;
-
-  c.messages.forEach(m => addMsg(m.role, m.text));
-}
-
-function addMsg(role, text) {
-  const chat = document.getElementById("chat");
-
+function addMessage(role, text) {
   const wrap = document.createElement("div");
   wrap.className = "msg " + role;
 
@@ -255,52 +165,76 @@ function addMsg(role, text) {
   bubble.className = "bubble";
 
   if (role === "ai") {
-    bubble.innerHTML = format(text);
+    bubble.appendChild(renderAI(text));
   } else {
     bubble.textContent = text;
   }
 
   wrap.appendChild(bubble);
-  chat.appendChild(wrap);
-  chat.scrollTop = chat.scrollHeight;
+  chatDiv.appendChild(wrap);
+
+  chatDiv.scrollTop = chatDiv.scrollHeight;
 }
 
-function format(text) {
-  return text.replace(/```(\\w+)?\\n([\\s\\S]*?)```/g,
-    (m, lang, code) => {
-      const safe = code
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+function renderAI(text) {
+  const container = document.createElement("div");
 
-      return `
-<div class="code">
-  <div class="codetop">
-    <span>${lang || "code"}</span>
-    <span class="copy" onclick="copy(this)">Copy</span>
-  </div>
-  <pre><code>${safe}</code></pre>
-</div>`;
-    });
-}
+  const parts = text.split("```");
 
-function copy(el) {
-  const code = el.parentElement.nextElementSibling.innerText;
-  navigator.clipboard.writeText(code);
-  el.textContent = "Copied";
-  setTimeout(() => el.textContent = "Copy", 1000);
+  parts.forEach((part, i) => {
+    if (i % 2 === 0) {
+      const span = document.createElement("div");
+      span.textContent = part;
+      container.appendChild(span);
+    } else {
+      const lines = part.split("\n");
+      const lang = lines[0];
+      const code = lines.slice(1).join("\n");
+
+      const box = document.createElement("div");
+      box.className = "codebox";
+
+      const top = document.createElement("div");
+      top.className = "codetop";
+
+      const label = document.createElement("span");
+      label.textContent = lang || "code";
+
+      const btn = document.createElement("span");
+      btn.className = "copybtn";
+      btn.textContent = "Copy";
+
+      btn.onclick = () => {
+        navigator.clipboard.writeText(code);
+        btn.textContent = "Copied";
+        setTimeout(() => btn.textContent = "Copy", 1000);
+      };
+
+      const pre = document.createElement("pre");
+      const c = document.createElement("code");
+      c.textContent = code;
+
+      pre.appendChild(c);
+      top.appendChild(label);
+      top.appendChild(btn);
+
+      box.appendChild(top);
+      box.appendChild(pre);
+
+      container.appendChild(box);
+    }
+  });
+
+  return container;
 }
 
 async function send() {
-  const input = document.getElementById("input");
   const text = input.value.trim();
   if (!text) return;
 
   input.value = "";
 
-  addMsg("user", text);
-
-  const c = getChat();
-  c.messages.push({ role: "user", text });
+  addMessage("user", text);
 
   const res = await fetch("/api/chat", {
     method: "POST",
@@ -310,11 +244,7 @@ async function send() {
 
   const data = await res.json();
 
-  addMsg("ai", data.reply);
-
-  c.messages.push({ role: "ai", text: data.reply });
-
-  save();
+  addMessage("ai", data.reply);
 }
 </script>
 
